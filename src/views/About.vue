@@ -1,39 +1,34 @@
 <template>
   <div class="about">
-    <div>
-      <section>
-        <b-select
-          placeholder="Select a city"
-          v-model="city"
-          v-on:input="findblock()"
-        >
-          <option v-for="city in cities" :key="city">
-            {{ city.name }}
-          </option>
-        </b-select>
-        <b-select
-          placeholder="Select a block"
-          v-model="block"
-          v-on:input="findlocation()"
-        >
-          <option v-for="block in blocks" :key="block">
-            {{ block }}
-          </option>
-        </b-select>
-        <b-select
-          placeholder="Select a location"
-          v-model="location"
-          v-on:input="output()"
-        >
-          <option v-for="location in locations" :key="location">
-            {{ location }}
-          </option>
-        </b-select>
-      </section>
+    <div class="columns">
+      <div class="column is-full"></div>
+    </div>
+    <div class="columns">
+      <div class="column is-one-third">
+        <section>
+          <b-select placeholder="Select a city" v-model="city" v-on:input="findblock()">
+            <option v-for="city in cities" :key="city">{{ city.name }}</option>
+          </b-select>
+          <div v-if="section2">
+          <b-select
+            placeholder="Select a block"
+            v-model="block"
+            
+            v-on:input="findlocation()"
+          >
+            <option v-for="block in blocks" :key="block">{{ block }}</option>
+          </b-select>
+          </div>
+          <div v-if="section3">
+          <b-select placeholder="Select a location" v-model="location" v-on:input="output()">
+            <option v-for="location in locations" :key="location">{{ location }}</option>
+          </b-select>
+          </div>
+        </section>
+      </div>
       <h1>{{ location }}</h1>
       <h2>溫度:{{ temp }}</h2>
-      <h3>經緯度:{{ lat }},{{ lot }}</h3>
-      <h3>觀測時間:{{ time }}</h3>
+      <h3>觀測時間1:{{ time }}</h3>
     </div>
   </div>
 </template>
@@ -46,6 +41,8 @@ export default {
       lat: '',
       lot: '',
       temp: '',
+      section2: false,
+      section3: false,
       locations: [],
       blocks: [],
       api:
@@ -82,19 +79,12 @@ export default {
       this.locations = []
       this.axios.get(this.api).then((res) => {
         for (let n = 0; n <= 438; n++) {
-          if (
-            this.city ==
-            res.data['records']['location'][n]['parameter']['0'][
-              'parameterValue'
-            ]
-          ) {
-            if (
-              this.blocks.indexOf(
-                res.data['records']['location'][n]['parameter']['2'][
-                  'parameterValue'
-                ]
+          if ( this.city == res.data['records']['location'][n]['parameter']['0']['parameterValue']) 
+              {
+            if ( this.blocks.indexOf( res.data['records']['location'][n]['parameter']['2']['parameterValue']
               ) == -1
             )
+              this.section2=true
               this.blocks.push(
                 res.data['records']['location'][n]['parameter']['2'][
                   'parameterValue'
@@ -102,6 +92,7 @@ export default {
               )
           }
         }
+        this.section2=false
       })
     },
     findlocation() {
@@ -114,15 +105,21 @@ export default {
               'parameterValue'
             ]
           ) {
+            
             if (
               this.city ==
               res.data['records']['location'][n]['parameter']['0'][
                 'parameterValue'
               ]
             ) {
+              this.section3 = true
               this.locations.push(
                 res.data['records']['location'][n]['locationName']
               )
+            }
+            else
+            {
+              this.section3=false
             }
           }
         }
@@ -142,8 +139,11 @@ export default {
               res.data['records']['location'][n]['weatherElement']['3'][
                 'elementValue'
               ]
+            //this.section2 = false
+            //this.section3 = false
           }
         }
+        
       })
     }
   }
